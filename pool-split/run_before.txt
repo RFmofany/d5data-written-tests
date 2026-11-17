@@ -1,0 +1,173 @@
+F..FFFF.FF....FF                                                         [100%]
+================================== FAILURES ===================================
+_____________________ test_simple_equal_split_keeps_total _____________________
+
+    def test_simple_equal_split_keeps_total():
+        # 100 分给三个权重相同的人，原实现会给出 [33, 33, 33]，合计只有 99。
+        shares = split_pool(100, [1, 1, 1])
+>       assert total_of(shares) == 100
+E       assert 99 == 100
+E        +  where 99 = total_of([33, 33, 33])
+
+test_pool_split.py:15: AssertionError
+____________________ test_exact_division_has_no_remainder _____________________
+
+    def test_exact_division_has_no_remainder():
+>       assert split_pool(10000, [1, 1, 1]) == [3334, 3333, 3333]
+E       assert [3333, 3333, 3333] == [3334, 3333, 3333]
+E         
+E         At index 0 diff: 3333 != 3334
+E         Use -v to get more diff
+
+test_pool_split.py:29: AssertionError
+______________________ test_tie_breaks_by_original_index ______________________
+
+    def test_tie_breaks_by_original_index():
+        # 1 分钱分给两个权重相同的人：按余数相同、下标靠前优先，给第一个人。
+>       assert split_pool(1, [1, 1]) == [1, 0]
+E       assert [0, 0] == [1, 0]
+E         
+E         At index 0 diff: 0 != 1
+E         Use -v to get more diff
+
+test_pool_split.py:35: AssertionError
+________________ test_total_is_always_conserved[100-weights0] _________________
+
+pool_cents = 100, weights = [1, 1, 1]
+
+    @pytest.mark.parametrize(
+        "pool_cents, weights",
+        [
+            (100, [1, 1, 1]),
+            (1, [1, 1]),
+            (7, [1, 2, 3, 4]),
+            (999, [5, 5, 5, 5]),
+            (100000, [17, 23, 41, 59]),
+            (123456789, [1, 999999, 12345]),
+            (0, [1, 2]),
+            (50, [0, 0, 5]),
+        ],
+    )
+    def test_total_is_always_conserved(pool_cents, weights):
+        shares = split_pool(pool_cents, weights)
+        assert len(shares) == len(weights)
+        assert all(isinstance(s, int) and s >= 0 for s in shares)
+>       assert total_of(shares) == pool_cents
+E       assert 99 == 100
+E        +  where 99 = total_of([33, 33, 33])
+
+test_pool_split.py:56: AssertionError
+_________________ test_total_is_always_conserved[1-weights1] __________________
+
+pool_cents = 1, weights = [1, 1]
+
+    @pytest.mark.parametrize(
+        "pool_cents, weights",
+        [
+            (100, [1, 1, 1]),
+            (1, [1, 1]),
+            (7, [1, 2, 3, 4]),
+            (999, [5, 5, 5, 5]),
+            (100000, [17, 23, 41, 59]),
+            (123456789, [1, 999999, 12345]),
+            (0, [1, 2]),
+            (50, [0, 0, 5]),
+        ],
+    )
+    def test_total_is_always_conserved(pool_cents, weights):
+        shares = split_pool(pool_cents, weights)
+        assert len(shares) == len(weights)
+        assert all(isinstance(s, int) and s >= 0 for s in shares)
+>       assert total_of(shares) == pool_cents
+E       assert 0 == 1
+E        +  where 0 = total_of([0, 0])
+
+test_pool_split.py:56: AssertionError
+________________ test_total_is_always_conserved[999-weights3] _________________
+
+pool_cents = 999, weights = [5, 5, 5, 5]
+
+    @pytest.mark.parametrize(
+        "pool_cents, weights",
+        [
+            (100, [1, 1, 1]),
+            (1, [1, 1]),
+            (7, [1, 2, 3, 4]),
+            (999, [5, 5, 5, 5]),
+            (100000, [17, 23, 41, 59]),
+            (123456789, [1, 999999, 12345]),
+            (0, [1, 2]),
+            (50, [0, 0, 5]),
+        ],
+    )
+    def test_total_is_always_conserved(pool_cents, weights):
+        shares = split_pool(pool_cents, weights)
+        assert len(shares) == len(weights)
+        assert all(isinstance(s, int) and s >= 0 for s in shares)
+>       assert total_of(shares) == pool_cents
+E       assert 1000 == 999
+E        +  where 1000 = total_of([250, 250, 250, 250])
+
+test_pool_split.py:56: AssertionError
+_______________ test_total_is_always_conserved[100000-weights4] _______________
+
+pool_cents = 100000, weights = [17, 23, 41, 59]
+
+    @pytest.mark.parametrize(
+        "pool_cents, weights",
+        [
+            (100, [1, 1, 1]),
+            (1, [1, 1]),
+            (7, [1, 2, 3, 4]),
+            (999, [5, 5, 5, 5]),
+            (100000, [17, 23, 41, 59]),
+            (123456789, [1, 999999, 12345]),
+            (0, [1, 2]),
+            (50, [0, 0, 5]),
+        ],
+    )
+    def test_total_is_always_conserved(pool_cents, weights):
+        shares = split_pool(pool_cents, weights)
+        assert len(shares) == len(weights)
+        assert all(isinstance(s, int) and s >= 0 for s in shares)
+>       assert total_of(shares) == pool_cents
+E       assert 100001 == 100000
+E        +  where 100001 = total_of([12143, 16429, 29286, 42143])
+
+test_pool_split.py:56: AssertionError
+_____________________________ test_random_inputs ______________________________
+
+    def test_random_inputs():
+        rng = random.Random(20261117)
+        for _ in range(500):
+            n = rng.randint(1, 30)
+            weights = [rng.randint(0, 1000) for _ in range(n)]
+            if sum(weights) == 0:
+                weights[rng.randrange(n)] = 1
+            pool_cents = rng.randint(0, 10**9)
+            shares = split_pool(pool_cents, weights)
+            assert len(shares) == n
+>           assert sum(shares) == pool_cents
+E           assert 323991555 == 323991556
+E            +  where 323991555 = sum([4392606, 707534, 29303695, 7045858, 6102480, 6485727, ...])
+
+test_pool_split.py:78: AssertionError
+_____________________________ test_invalid_inputs _____________________________
+
+    def test_invalid_inputs():
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+test_pool_split.py:83: Failed
+=========================== short test summary info ===========================
+FAILED test_pool_split.py::test_simple_equal_split_keeps_total - assert 99 ==...
+FAILED test_pool_split.py::test_exact_division_has_no_remainder - assert [333...
+FAILED test_pool_split.py::test_tie_breaks_by_original_index - assert [0, 0] ...
+FAILED test_pool_split.py::test_total_is_always_conserved[100-weights0] - ass...
+FAILED test_pool_split.py::test_total_is_always_conserved[1-weights1] - asser...
+FAILED test_pool_split.py::test_total_is_always_conserved[999-weights3] - ass...
+FAILED test_pool_split.py::test_total_is_always_conserved[100000-weights4] - ...
+FAILED test_pool_split.py::test_random_inputs - assert 323991555 == 323991556
+FAILED test_pool_split.py::test_invalid_inputs - Failed: DID NOT RAISE ValueE...
+9 failed, 7 passed in 0.13s
